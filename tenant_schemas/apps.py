@@ -88,6 +88,14 @@ def best_practice(app_configs, **kwargs):
             Error("You have SHARED_APPS that are not in INSTALLED_APPS",
                   hint=[a for a in settings.SHARED_APPS if a in delta]))
 
+    installed_not_shared_or_tenant = set(INSTALLED_APPS).difference(
+        set(settings.SHARED_APPS).union(settings.TENANT_APPS))
+    if installed_not_shared_or_tenant:
+        errors.append(
+            Error("You have INSTALLED_APPS that are not in either of "
+                  "TENANT_APPS or SHARED_APPS",
+                  hint=sorted(installed_not_shared_or_tenant)))
+
     if not isinstance(default_storage, TenantStorageMixin):
         errors.append(Warning(
             "Your default storage engine is not tenant aware.",
