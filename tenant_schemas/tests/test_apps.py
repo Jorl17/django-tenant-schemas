@@ -84,6 +84,9 @@ class AppConfigTests(TestCase):
         self.assertBestPractice([
             Error("TENANT_APPS is empty.",
                   hint="Maybe you don't need this app?"),
+            Error("You have INSTALLED_APPS that are not in either of "
+                  "TENANT_APPS or SHARED_APPS",
+                  hint=['dts_test_app']),
         ])
 
     @override_settings(PG_EXTRA_SEARCH_PATHS=['public', 'demo1', 'demo2'])
@@ -98,10 +101,20 @@ class AppConfigTests(TestCase):
             Critical("Do not include tenant schemas (demo1, demo2) on PG_EXTRA_SEARCH_PATHS."),
         ])
 
-    @override_settings(SHARED_APPS=())
+    @override_settings(SHARED_APPS=(), INSTALLED_APPS=(
+        'tenant_schemas',
+        'dts_test_app',
+        'django.contrib.contenttypes',
+    ))
+    @modify_settings(TENANT_APPS={
+        'append': 'django.contrib.contenttypes',
+    })
     def test_shared_apps_empty(self):
         self.assertBestPractice([
             Warning("SHARED_APPS is empty."),
+            Error("You have INSTALLED_APPS that are not in either of "
+                  "TENANT_APPS or SHARED_APPS",
+                  hint=['tenant_schemas']),
         ])
 
     @override_settings(TENANT_APPS=(
