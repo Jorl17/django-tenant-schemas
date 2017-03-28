@@ -32,10 +32,7 @@ def tenant_context(tenant):
         connection.set_tenant(tenant)
         yield
     finally:
-        if previous_tenant is None:
-            connection.set_schema_to_public()
-        else:
-            connection.set_tenant(previous_tenant)
+        connection.set_tenant(previous_tenant)
 
 
 def get_tenant_model():

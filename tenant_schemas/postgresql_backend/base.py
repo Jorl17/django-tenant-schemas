@@ -70,11 +70,14 @@ class DatabaseWrapper(original_backend.DatabaseWrapper):
         Main API method to current database schema,
         but it does not actually modify the db connection.
         """
-        self.tenant = tenant
-        self.schema_name = tenant.schema_name
-        self.include_public_schema = include_public
-        self.set_settings_schema(self.schema_name)
-        self.search_path_set = False
+        if tenant is None:
+            self.set_schema_to_public()
+        else:
+            self.tenant = tenant
+            self.schema_name = tenant.schema_name
+            self.include_public_schema = include_public
+            self.set_settings_schema(self.schema_name)
+            self.search_path_set = False
 
     def set_schema(self, schema_name, include_public=True):
         """
